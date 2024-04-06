@@ -1,4 +1,4 @@
-import { Fragment, useEffect, useState } from "react";
+import { Fragment, useEffect, useState, useRef } from "react";
 import SliderImage from "./SliderImage";
 
 interface Product {
@@ -10,6 +10,8 @@ interface Product {
 export default function Slider() {
   const [firstSlider, setFirstSlider] = useState([]);
   const [secondSlider, setSecondSlider] = useState([]);
+  const [translate, setTranslate] = useState(0);
+  const firstSlideRow = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const fetchImage = async () => {
@@ -23,14 +25,36 @@ export default function Slider() {
       });
       setFirstSlider(firstSlice);
       setSecondSlider(secondSlice);
+      setTranslate((current) => current + 10);
     };
     fetchImage();
   }, []);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setTranslate((current) => current + 320);
+    }, 1000);
+    return () => {
+      clearInterval(interval);
+    };
+  }, []);
+
   return (
     <Fragment>
       <div className="overflow-hidden">
-        <div className="flex relative justify-center">{firstSlider}</div>
-        <div className="flex ">{secondSlider}</div>
+        <div
+          ref={firstSlideRow}
+          className="flex relative duration-1000 ease-linear"
+          style={{ transform: `translateX(-${translate}px)` }}
+        >
+          {firstSlider}
+        </div>
+        <div
+          className="flex relative duration-1000 ease-linear justify-end"
+          style={{ transform: `translateX(${translate}px)` }}
+        >
+          {secondSlider}
+        </div>
       </div>
     </Fragment>
   );
